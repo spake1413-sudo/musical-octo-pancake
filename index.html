@@ -1,14 +1,206 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+<meta charset="UTF-8">
+<title>DNA to Protein - Lab Edition</title>
+
+<style>
+    body { 
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+        background-color: #f0f4f8; color: #2d3748; margin: 0; padding: 20px; 
+        /* 배경 이미지 변경: 아기자기한 DNA 번역 과정 일러스트, 은은한 오버레이 적용 */
+        background-image: linear-gradient(rgba(240, 244, 248, 0.93), rgba(240, 244, 248, 0.93)),
+                          url('https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbcM5I6%2FbtsHeWvR8bV%2FXkCg5uKVYk1L4K9vSKFkiK%2Fimg.png');
+        background-attachment: fixed; background-size: cover; background-position: center;
+    }
+
+    .container {
+        max-width: 950px; margin: 0 auto; background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px); padding: 25px; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    h2 { color: #1a365d; display: flex; align-items: center; gap: 10px; font-size: 22px; justify-content: center; }
+    
+    textarea {
+        width: 100%; height: 110px; padding: 12px; border-radius: 10px; box-sizing: border-box;
+        border: 2px solid #e2e8f0; font-family: 'Courier New', monospace; resize: vertical; font-size: 13px;
+    }
+
+    .button-group { margin: 20px 0; display: flex; gap: 12px; justify-content: center; }
+    
+    button {
+        width: 150px; padding: 12px 0; font-size: 16px; font-weight: 700; cursor: pointer;
+        border: none; border-radius: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .submitBtn { background: #007BFF; color: white; box-shadow: 0 4px 12px rgba(0,123,255,0.2); }
+    .submitBtn:hover { transform: translateY(-3px); background: #0056b3; }
+    .clearBtn { background: #cbd5e0; color: #4a5568; }
+
+    .alignment-box { 
+        padding: 12px 15px; background: #1a202c; border-radius: 8px; color: #f7fafc; 
+        margin-top: 5px; width: fit-content; max-width: 100%; overflow-x: auto;
+    }
+    
+    .frame-pre { font-family: 'Courier New', monospace; font-size: 15px; margin: 0; line-height: 1.5; }
+    .align-pre { font-family: 'Courier New', monospace; font-size: 12px; margin: 0; line-height: 1.2; }
+
+    .codon-unit { display: inline-flex; flex-direction: column; align-items: center; width: 32px; vertical-align: top; margin-bottom: 5px;}
+    .dna-text { font-weight: bold; color: #cbd5e0; font-size: 12px; letter-spacing: 0.5px; }
+    .aa-text { font-weight: bold; color: #63b3ed; height: 20px; display: flex; align-items: center; font-size: 12px; }
+
+    .stop-codon { background-color: #f6e05e; color: #e53e3e; font-weight: bold; padding: 0 2px; border-radius: 2px; }
+    
+    .info-line { 
+        display: block; background: #ebf8ff; color: #2c5282; padding: 5px 10px; 
+        border-radius: 6px; width: fit-content; margin: 5px 0; font-weight: 600; font-size: 12px; 
+    }
+    
+    .valueRed { color: #e53e3e; font-weight: bold; }
+    .titleStyle { font-weight: 800; font-size: 16px; border-left: 4px solid #007BFF; padding-left: 10px; margin: 25px 0 8px 0; }
+    
+    .errorStyle { font-weight: 800; color: #e53e3e; font-size: 16px; border-left: 5px solid #e53e3e; padding-left: 12px; margin: 20px 0; }
+
+    details { margin-bottom: 5px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; width: 100%; }
+    summary { padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; list-style: none; }
+    .arrow-icon { width: 6px; height: 6px; border-right: 2px solid #64748b; border-bottom: 2px solid #64748b; transform: rotate(45deg); transition: 0.3s; }
+    details[open] .arrow-icon { transform: rotate(-135deg); }
+</style>
 </head>
+
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+
+<div class="container">
+    <h2>🧬 DNA to Protein Translator</h2>
+    <p style="color:#718096; font-size: 13px; text-align: center;">Please enter the DNA sequence to analyze (A, T, G, C).</p>
+    <textarea id="dnaInput" placeholder="Enter DNA sequence here..."></textarea>
+    
+    <div class="button-group">
+        <button class="submitBtn" onclick="translateDNA()">Translate</button>
+        <button class="clearBtn" onclick="clearDNA()">Clear All</button>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+<script>
+const codonTable = {'TCA':'S','TCC':'S','TCG':'S','TCT':'S','TTC':'F','TTT':'F','TTA':'L','TTG':'L','TAC':'Y','TAT':'Y','TAA':'*','TAG':'*','TGC':'C','TGT':'C','TGA':'*','TGG':'W','CTA':'L','CTC':'L','CTG':'L','CTT':'L','CCA':'P','CCC':'P','CCG':'P','CCT':'P','CAC':'H','CAT':'H','CAA':'Q','CAG':'Q','CGA':'R','CGC':'R','CGG':'R','CGT':'R','ATA':'I','ATC':'I','ATT':'I','ATG':'M','ACA':'T','ACC':'T','ACG':'T','ACT':'T','AAC':'N','AAT':'N','AAA':'K','AAG':'K','AGC':'S','AGT':'S','AGA':'R','AGG':'R','GTA':'V','GTC':'V','GTG':'V','GTT':'V','GCA':'A','GCC':'A','GCG':'A','GCT':'A','GAC':'D','GAT':'D','GAA':'E','GAG':'E','GGA':'G','GGC':'G','GGG':'G','GGT':'G'};
+
+function clearDNA(){
+    document.getElementById("dnaInput").value="";
+    document.getElementById("output").innerHTML="";
+}
+
+function calculatePhysChem(seq) {
+    if(!seq) return { length: 0, mw: "0.000", pi: "0.00" };
+    const weights = {A:89.09,R:174.20,N:132.12,D:133.10,C:121.15,E:147.13,Q:146.15,G:75.07,H:155.16,I:131.17,L:131.17,K:146.19,M:149.21,F:165.19,P:115.13,S:105.09,T:119.12,W:204.23,Y:181.19,V:117.15};
+    const pKa = { C:8.3, D:3.9, E:4.3, H:6.0, K:10.5, R:12.5, Y:10.1 };
+    let mw = 0; let counts = {C:0,D:0,E:0,H:0,K:0,R:0,Y:0};
+    for(let aa of seq) { mw += weights[aa] || 0; if(pKa[aa]) counts[aa]++; }
+    if(seq.length > 1) mw -= (seq.length - 1) * 18.015;
+    function getCharge(pH) {
+        let charge = 1/(1+Math.pow(10,(pH-9.6))) - 1/(1+Math.pow(10,(2.4-pH)));
+        charge += counts.K/(1+Math.pow(10,(pH-pKa.K))) + counts.R/(1+Math.pow(10,(pH-pKa.R))) + counts.H/(1+Math.pow(10,(pH-pKa.H)));
+        charge -= counts.D/(1+Math.pow(10,(pKa.D-pH))) + counts.E/(1+Math.pow(10,(pKa.E-pH))) + counts.C/(1+Math.pow(10,(pKa.C-pH))) + counts.Y/(1+Math.pow(10,(pKa.Y-pH)));
+        return charge;
+    }
+    let pH = 7.0, step = 3.5;
+    for(let i=0; i<15; i++) { getCharge(pH) > 0 ? pH += step : pH -= step; step /= 2; }
+    return { length: seq.length, mw: (mw/1000).toFixed(3), pi: pH.toFixed(2) };
+}
+
+function translateDNA(){
+    let rawText = document.getElementById("dnaInput").value.trim();
+    if (!/^[ATGCatgc\s\n\r]+$/.test(rawText) && rawText !== "") {
+        document.getElementById("output").innerHTML = "<div class='errorStyle'>Invalid DNA sequence detected. Please enter only A, T, G, C.</div>";
+        return;
+    }
+    let dna = rawText.toUpperCase().replace(/[^ATGC]/g, '');
+    if(dna.length < 3) {
+        if(dna.length > 0) document.getElementById("output").innerHTML = "<div class='errorStyle'>Sequence is too short (min 3bp).</div>";
+        return;
+    }
+
+    let frames = [0, 1, 2].map(f => {
+        let aa = ""; let stops = 0;
+        for(let i=f; i<=dna.length-3; i+=3){
+            let codon = dna.substr(i,3);
+            let a = codonTable[codon] || "X";
+            if(a === "*") stops++;
+            aa += a;
+        }
+        return { aa, stops };
+    });
+
+    let bestFrameIdx = frames.reduce((prev, curr, idx) => curr.stops < frames[prev].stops ? idx : prev, 0);
+    let bestFrameObj = frames[bestFrameIdx];
+    let fullAA = bestFrameObj.aa;
+
+    // --- 정밀 검증 로직 시작 ---
+    const checkLimitAA = Math.ceil(200 / 3); // 200bp -> 약 67 aa
+    
+    // 1. 처음 200bp 내 Stop 코돈 검사 (1개라도 발견되면 에러)
+    let headAA = fullAA.substring(0, checkLimitAA);
+    if (headAA.includes("*")) {
+        document.getElementById("output").innerHTML = "<div class='errorStyle'>Multiple Stop codons detected, enter the correct DNA sequence.</div>";
+        return;
+    }
+
+    // 2. 중간 구간 (처음 200bp 이후 ~ 마지막 200bp 이전) 검사 (2개 이상이면 에러)
+    const safeZoneEndIdx = Math.max(0, fullAA.length - checkLimitAA);
+    let middleZoneAA = fullAA.substring(checkLimitAA, safeZoneEndIdx);
+    let stopCountInMiddle = (middleZoneAA.match(/\*/g) || []).length;
+
+    if (stopCountInMiddle >= 2) {
+        document.getElementById("output").innerHTML = "<div class='errorStyle'>Multiple Stop codons detected, enter the correct DNA sequence.</div>";
+        return;
+    }
+
+    // 3. 마지막 200bp 내 Stop 코돈 처리 및 데이터 절단
+    let validAA = fullAA;
+    if (fullAA.includes("*")) {
+        let firstStopIdx = fullAA.indexOf("*");
+        validAA = fullAA.substring(0, firstStopIdx);
+    }
+    // --- 정밀 검증 로직 끝 ---
+
+    let html = "<div class='titleStyle'>Analysis Results</div>";
+    frames.forEach((f, i) => {
+        let isBest = (i === bestFrameIdx);
+        let header = `Frame ${i+1} ${isBest ? "[Selected]" : ""} / Stops: ${f.stops}`;
+        let content = `<div class="alignment-box"><pre class="frame-pre">`;
+        for(let j=0; j<f.aa.length; j+=60) {
+            content += f.aa.substr(j,60).replace(/\*/g, '<span class="stop-codon">*</span>') + "\n";
+        }
+        content += `</pre></div>`;
+        if(isBest) {
+            let stats = calculatePhysChem(validAA);
+            html += `<div style="padding:2px 0; font-size:13px;"><b>${header}</b>`;
+            html += `<span class="info-line">Length: <span class="valueRed">${stats.length} aa</span> | MW: <span class="valueRed">${stats.mw} kDa</span> | pI: <span class="valueRed">${stats.pi}</span></span></div>`;
+            html += content;
+        } else {
+            html += `<details><summary>${header} <div class="arrow-icon"></div></summary>${content}</details>`;
+        }
+    });
+
+    html += "<div class='titleStyle'>DNA / Amino Acid Alignment</div>";
+    html += "<div class='alignment-box'><div class='align-pre'>";
+    let startIdx = bestFrameIdx;
+    for(let i=0; i < (dna.length - startIdx); i+=3) {
+        let codon = dna.substr(startIdx + i, 3);
+        if(codon.length < 3) break;
+        let aa = codonTable[codon] || "X";
+        let aaDisplay = (aa === "*") ? '<span class="stop-codon">*</span>' : aa;
+        if(i > 0 && i % 60 === 0) html += "<br><br>";
+        html += `<div class="codon-unit">
+                    <span class="dna-text">${codon}</span>
+                    <span class="aa-text">${aaDisplay}</span>
+                 </div>`;
+    }
+    html += "</div></div>";
+    document.getElementById("output").innerHTML = html;
+}
+</script>
 </body>
 </html>
