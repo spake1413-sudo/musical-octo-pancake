@@ -5,26 +5,66 @@
 <title>DNA to Protein - Lab Edition</title>
 
 <style>
+    :root {
+        --bg-color: #f0f4f8;
+        --container-bg: rgba(255, 255, 255, 0.92);
+        --text-color: #2d3748;
+        --heading-color: #1a365d;
+        --sub-text-color: #718096;
+        --textarea-border: #e2e8f0;
+        --textarea-bg: #ffffff;
+        --button-clear-bg: #cbd5e0;
+        --button-clear-text: #4a5568;
+        --alignment-bg: #1a202c;
+        --alignment-text: #f7fafc;
+        --info-bg: #ebf8ff;
+        --info-text: #2c5282;
+        --details-bg: #ffffff;
+        --details-border: #e2e8f0;
+        --overlay-color: rgba(240, 244, 248, 0.93);
+    }
+
+    body.dark-mode {
+        --bg-color: #1a202c;
+        --container-bg: rgba(45, 55, 72, 0.92);
+        --text-color: #e2e8f0;
+        --heading-color: #63b3ed;
+        --sub-text-color: #a0aec0;
+        --textarea-border: #4a5568;
+        --textarea-bg: #2d3748;
+        --button-clear-bg: #4a5568;
+        --button-clear-text: #e2e8f0;
+        --alignment-bg: #000000;
+        --alignment-text: #edf2f7;
+        --info-bg: #2c5282;
+        --info-text: #ebf8ff;
+        --details-bg: #2d3748;
+        --details-border: #4a5568;
+        --overlay-color: rgba(26, 32, 44, 0.93);
+    }
+
     body { 
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-        background-color: #f0f4f8; color: #2d3748; margin: 0; padding: 20px; 
-        /* 배경 이미지 변경: 아기자기한 DNA 번역 과정 일러스트, 은은한 오버레이 적용 */
-        background-image: linear-gradient(rgba(240, 244, 248, 0.93), rgba(240, 244, 248, 0.93)),
+        background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; 
+        background-image: linear-gradient(var(--overlay-color), var(--overlay-color)),
                           url('https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbcM5I6%2FbtsHeWvR8bV%2FXkCg5uKVYk1L4K9vSKFkiK%2Fimg.png');
         background-attachment: fixed; background-size: cover; background-position: center;
+        transition: background-color 0.3s, color 0.3s;
     }
 
     .container {
-        max-width: 950px; margin: 0 auto; background: rgba(255, 255, 255, 0.92);
+        max-width: 950px; margin: 0 auto; background: var(--container-bg);
         backdrop-filter: blur(10px); padding: 25px; border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        position: relative;
     }
 
-    h2 { color: #1a365d; display: flex; align-items: center; gap: 10px; font-size: 22px; justify-content: center; }
+    h2 { color: var(--heading-color); display: flex; align-items: center; gap: 10px; font-size: 22px; justify-content: center; }
     
     textarea {
         width: 100%; height: 110px; padding: 12px; border-radius: 10px; box-sizing: border-box;
-        border: 2px solid #e2e8f0; font-family: 'Courier New', monospace; resize: vertical; font-size: 13px;
+        border: 2px solid var(--textarea-border); background-color: var(--textarea-bg); color: var(--text-color);
+        font-family: 'Courier New', monospace; resize: vertical; font-size: 13px;
     }
 
     .button-group { margin: 20px 0; display: flex; gap: 12px; justify-content: center; }
@@ -36,10 +76,16 @@
     
     .submitBtn { background: #007BFF; color: white; box-shadow: 0 4px 12px rgba(0,123,255,0.2); }
     .submitBtn:hover { transform: translateY(-3px); background: #0056b3; }
-    .clearBtn { background: #cbd5e0; color: #4a5568; }
+    .clearBtn { background: var(--button-clear-bg); color: var(--button-clear-text); }
+
+    .theme-toggle {
+        position: absolute; top: 20px; right: 25px; background: transparent; border: 2px solid var(--textarea-border);
+        color: var(--text-color); width: 40px; height: 40px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; font-size: 20px; padding: 0;
+    }
 
     .alignment-box { 
-        padding: 12px 15px; background: #1a202c; border-radius: 8px; color: #f7fafc; 
+        padding: 12px 15px; background: var(--alignment-bg); border-radius: 8px; color: var(--alignment-text); 
         margin-top: 5px; width: fit-content; max-width: 100%; overflow-x: auto;
     }
     
@@ -53,16 +99,16 @@
     .stop-codon { background-color: #f6e05e; color: #e53e3e; font-weight: bold; padding: 0 2px; border-radius: 2px; }
     
     .info-line { 
-        display: block; background: #ebf8ff; color: #2c5282; padding: 5px 10px; 
+        display: block; background: var(--info-bg); color: var(--info-text); padding: 5px 10px; 
         border-radius: 6px; width: fit-content; margin: 5px 0; font-weight: 600; font-size: 12px; 
     }
     
     .valueRed { color: #e53e3e; font-weight: bold; }
-    .titleStyle { font-weight: 800; font-size: 16px; border-left: 4px solid #007BFF; padding-left: 10px; margin: 25px 0 8px 0; }
+    .titleStyle { font-weight: 800; font-size: 16px; border-left: 4px solid #007BFF; padding-left: 10px; margin: 25px 0 8px 0; color: var(--text-color); }
     
     .errorStyle { font-weight: 800; color: #e53e3e; font-size: 16px; border-left: 5px solid #e53e3e; padding-left: 12px; margin: 20px 0; }
 
-    details { margin-bottom: 5px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; width: 100%; }
+    details { margin-bottom: 5px; border: 1px solid var(--details-border); border-radius: 8px; background: var(--details-bg); width: 100%; color: var(--text-color); }
     summary { padding: 10px 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 13px; list-style: none; }
     .arrow-icon { width: 6px; height: 6px; border-right: 2px solid #64748b; border-bottom: 2px solid #64748b; transform: rotate(45deg); transition: 0.3s; }
     details[open] .arrow-icon { transform: rotate(-135deg); }
@@ -72,8 +118,9 @@
 <body>
 
 <div class="container">
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
     <h2>🧬 DNA to Protein Translator</h2>
-    <p style="color:#718096; font-size: 13px; text-align: center;">Please enter the DNA sequence to analyze (A, T, G, C).</p>
+    <p style="color:var(--sub-text-color); font-size: 13px; text-align: center;">Please enter the DNA sequence to analyze (A, T, G, C).</p>
     <textarea id="dnaInput" placeholder="Enter DNA sequence here..."></textarea>
     
     <div class="button-group">
@@ -85,6 +132,30 @@
 </div>
 
 <script>
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeBtn').innerText = '☀️';
+    }
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const themeBtn = document.getElementById('themeBtn');
+    body.classList.toggle('dark-mode');
+    
+    if (body.classList.contains('dark-mode')) {
+        localStorage.setItem('theme', 'dark');
+        themeBtn.innerText = '☀️';
+    } else {
+        localStorage.setItem('theme', 'light');
+        themeBtn.innerText = '🌙';
+    }
+}
+
+initTheme();
 const codonTable = {'TCA':'S','TCC':'S','TCG':'S','TCT':'S','TTC':'F','TTT':'F','TTA':'L','TTG':'L','TAC':'Y','TAT':'Y','TAA':'*','TAG':'*','TGC':'C','TGT':'C','TGA':'*','TGG':'W','CTA':'L','CTC':'L','CTG':'L','CTT':'L','CCA':'P','CCC':'P','CCG':'P','CCT':'P','CAC':'H','CAT':'H','CAA':'Q','CAG':'Q','CGA':'R','CGC':'R','CGG':'R','CGT':'R','ATA':'I','ATC':'I','ATT':'I','ATG':'M','ACA':'T','ACC':'T','ACG':'T','ACT':'T','AAC':'N','AAT':'N','AAA':'K','AAG':'K','AGC':'S','AGT':'S','AGA':'R','AGG':'R','GTA':'V','GTC':'V','GTG':'V','GTT':'V','GCA':'A','GCC':'A','GCG':'A','GCT':'A','GAC':'D','GAT':'D','GAA':'E','GAG':'E','GGA':'G','GGC':'G','GGG':'G','GGT':'G'};
 
 function clearDNA(){
